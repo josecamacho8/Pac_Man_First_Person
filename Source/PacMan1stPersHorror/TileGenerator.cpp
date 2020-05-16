@@ -34,7 +34,6 @@ ATileGenerator::ATileGenerator()
 	// Call generator function
 	GenerateTilesForLevel();
 
-
 }
 
 // Called when the game starts or when spawned
@@ -57,12 +56,15 @@ void ATileGenerator::GenerateTilesForLevel()
 {
 	float TileXOffset, TileYOffset, TileZOffset = 0;
 	int TilesCreated = 0;
-	
+	int walls [] =
+	{
+		1, 1, 1, 1, 1,
+		1, 0, 0, 0, 1,
+		1, 0, 1, 0, 1,
+		1, 0, 0, 0, 1,
+		1, 1, 1, 1, 1,
+	};
 
-	UE_LOG(LogTemp, Warning, TEXT("%s: Entered."), __FUNCTION__);
-
-
-	
 	// Use 2D array to create tile system based off defined x, y, counts, and width heights
 	for (int CreateTilesY = 0; CreateTilesY < TileCountY; CreateTilesY++)
 	{
@@ -70,43 +72,49 @@ void ATileGenerator::GenerateTilesForLevel()
 		for (int CreateTilesX = 0; CreateTilesX < TileCountX; CreateTilesX++)
 		{
 			TileXOffset = CreateTilesX * TileWidth;
+			CreateTile(TileXOffset, TileYOffset, TileZOffset, TilesCreated, walls[TilesCreated]);
 			TilesCreated++;
-			CreateTileMesh(TileXOffset, TileYOffset, TileZOffset, TilesCreated);
 		}
 	}
 }
 
-void ATileGenerator::CreateTileMesh(float RelativeX, float RelativeY, float RelativeZ, int TileN)
+void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float RelativeZ, int TileN, int IsWall)
 {
-	UStaticMeshComponent* SuperMesh;
+	Tile* ATile = new Tile();
 	FVector	 TileLocation = FVector(RelativeX, RelativeY, RelativeZ);
 	FRotator TileRotation = GetActorRotation();
 
-	UE_LOG(LogTemp, Warning, TEXT("%s: Creating Tile%u: x-%u, y-%u, z-%u."),
-		   __FUNCTION__, TileN, RelativeX, RelativeY, RelativeZ);
-
-	// Creating UStaticMeshComponent
-	SuperMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Tile"), TileN));
-	if (SuperMesh == nullptr)
-	{
-	}
-	ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_400x400.Floor_400x400"));
-	SuperMesh->SetStaticMesh(StaticMesh_obj.Object);
-	SuperMesh->SetRelativeLocationAndRotation(TileLocation, TileRotation);
+	// Setting IsWall
+	ATile->IsWall = IsWall ? true : false;
 	
+	// Creating UStaticMeshComponent
+	ATile->MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Tile"), TileN));
+
+	if (IsWall)
+	{
+		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
+		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
+		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
+	}
+	else {
+		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_400x400.Floor_400x400"));
+		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
+		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
+	}
 	//Attaching material
 	ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Wood_Walnut.M_Wood_Walnut"));
-	SuperMesh->SetMaterial(0, Material_obj.Object);
-	SuperMesh->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+	ATile->MeshComponent->SetMaterial(0, Material_obj.Object);
+	ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 								 FName(TEXT("Tile"), TileN));
 
 	// Adding to TArray
-	TileArr.Add(SuperMesh);
+	TileArr.Add(ATile);
 }
 
-int ATileGenerator::GetTileFromCoordinates(int X, int Y)
+int ATileGenerator::GetTileFromCoordinates(FVector Location)
 {
 	int	TileIndex;
+	int X = Location.X, Y = Location.Y;
 
 	// Determine out of bounds
 	if ((X < TileXLowerBound) ||
@@ -119,7 +127,28 @@ int ATileGenerator::GetTileFromCoordinates(int X, int Y)
 	}
 
 	// Calculate index
-	TileIndex = (X / TileXUpperBound) + ((Y / TileYUpperBound) * TileWidth);
+	TileIndex = X / (TileWidth);
+	TileIndex += FMath::DivideAndRoundDown<int>(Y,  TileHeight) * TileCountX;
 	return TileIndex;
+
+}
+
+FVector ATileGenerator::GetCoordinatesFromTile(int TileIndex)
+{
+	FVector Location;
+	Location.Z = GetActorLocation().Z;
+
+	// Determine out of bounds
+	if ((TileIndex < 0) ||
+		(TileIndex > TileArr.Num()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: TileOutOfBounds."), __FUNCTION__);
+		return FVector();
+	}
+
+	// Calculate index
+	Location.X = ((TileIndex % TileCountX) * TileWidth) + (TileWidth / 2);
+	Location.Y = ((TileIndex / TileCountX) * TileHeight) + (TileHeight / 2);
+	return Location;
 
 }

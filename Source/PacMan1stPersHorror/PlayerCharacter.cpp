@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "TileGenerator.h"
 #include "Engine/Engine.h"
 
 // Sets default values
@@ -29,6 +30,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 }
 
 // Called to bind functionality to input

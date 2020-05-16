@@ -26,20 +26,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Tile Count X/Y
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// Tile System Constraints
 	int TileCountX;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int TileCountY;
-
-	// Tile Width/Height
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int TileWidth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int TileHeight;
 
 	/*
-	Called by actors traversing tile system.
+	Called by actors traversing tile system. 
 
 	Parameters:
 		-	int CoordinateX: X coordinate location of actor 
@@ -49,9 +43,22 @@ public:
 		-	[0, n): Index of tile location 
 		-	-1: If coordinates lay outside of known tiles
 	*/
-	int GetTileFromCoordinates(int X, int Y);
+	UFUNCTION(BlueprintCallable)
+	int GetTileFromCoordinates(FVector Location);
+
+	/*
+	Returns FVector located at center of tile[TileIndex]
+	*/
+	UFUNCTION(BlueprintCallable)
+	FVector GetCoordinatesFromTile(int TileIndex);
 
 private:
+	class Tile {
+		public:
+			UStaticMeshComponent* MeshComponent;
+			bool IsWall;
+	};
+
 	// Used to cache bounds of entire system. No idea if it improves performance. Research(?)
 	float TileXLowerBound, TileXUpperBound;
 	float TileYLowerBound, TileYUpperBound;
@@ -60,7 +67,7 @@ private:
 	USceneComponent* RootScene;
 
 	// Object array for ATiles.
-	TArray<UStaticMeshComponent*> TileArr;
+	TArray<Tile*> TileArr;
 
 
 	/*
@@ -70,5 +77,5 @@ private:
 	void GenerateTilesForLevel();
 
 	// Called by generator functon. Used to create physical representation of tile.
-	void CreateTileMesh(float X, float Y, float Z, int TileN);
+	void CreateTile(float X, float Y, float Z, int TileN, int IsWall);
 };
