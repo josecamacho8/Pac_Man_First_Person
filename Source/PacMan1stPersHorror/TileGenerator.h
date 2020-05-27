@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ScorePickup.h"
 #include "TileGenerator.generated.h"
 
 UCLASS()
@@ -29,6 +30,7 @@ public:
 	// Tile System Constraints
 	int TileCountX;
 	int TileCountY;
+	int TotalTiles;
 	int TileWidth;
 	int TileHeight;
 
@@ -52,12 +54,26 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetCoordinatesFromTile(int TileIndex);
 
+	/*
+	Used by AI to determine which tiles around this current tile are closest to target.
+	Gets surrounding tiles (up, left, down, right), calculates distance from those to target
+	and returns shortest distance tile. At point of tie, priority given in above mentioned order.
+	*/
+	UFUNCTION(BlueprintCallable)
+	int GetClosestTileToTarget(FVector CurrentLocation, FVector TargetLocation, int PrevTile);
+
 private:
+	UWorld* ThisWorld;
+
+	enum TileType {EmptyFloor, GlassWall, ExternalWall, ScorePickupFloor, TeleportWall};
 	class Tile {
 		public:
 			UStaticMeshComponent* MeshComponent;
-			bool IsWall;
+			TileType Type;
 	};
+
+	// Used to determine if specific tile is Glass/ExternalWall
+	bool IsWall(Tile* ATile);
 
 	// Used to cache bounds of entire system. No idea if it improves performance. Research(?)
 	float TileXLowerBound, TileXUpperBound;
@@ -69,6 +85,8 @@ private:
 	// Object array for ATiles.
 	TArray<Tile*> TileArr;
 
+	// Object array for ScorePickups.
+	TArray<AScorePickup*> ScorePickupArr;
 
 	/*
 	Called at consturction of TileGenerator class. Fills TileArr based off
@@ -77,5 +95,5 @@ private:
 	void GenerateTilesForLevel();
 
 	// Called by generator functon. Used to create physical representation of tile.
-	void CreateTile(float X, float Y, float Z, int TileN, int IsWall);
+	void CreateTile(float X, float Y, float Z, int TileN, int TileTypeInt);
 };
