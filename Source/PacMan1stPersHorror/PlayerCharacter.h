@@ -33,4 +33,14 @@ public:
 	// Handles input for moving right and left.
 	UFUNCTION()
 	void MoveRight(float Value);
+
+	// PrevTile keeps track of previous tile 
+	UPROPERTY(BlueprintReadWrite)
+	int PrevTile;
+
+	// CurrentTile keeps track of current tile
+	UPROPERTY(BlueprintReadWrite)
+	int CurrentTile;
+
+
 };

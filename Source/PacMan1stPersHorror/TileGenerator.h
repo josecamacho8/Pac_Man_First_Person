@@ -55,12 +55,34 @@ public:
 	FVector GetCoordinatesFromTile(int TileIndex);
 
 	/*
-	Used by AI to determine which tiles around this current tile are closest to target.
+	Used by Blinkty to determine which tiles around this current tile are closest to target.
 	Gets surrounding tiles (up, left, down, right), calculates distance from those to target
 	and returns shortest distance tile. At point of tie, priority given in above mentioned order.
 	*/
 	UFUNCTION(BlueprintCallable)
 	int GetClosestTileToTarget(FVector CurrentLocation, FVector TargetLocation, int PrevTile);
+
+
+	/*
+	Used by Pinky to determine chase tile. Pinky chases four tiles ahead of the current
+	players direction. Calculate four tiles ahead of this tile system, based on using prev and 
+	current player tiles to calculate direction.
+	*/
+	UFUNCTION(BlueprintCallable)
+	int GetPinkyChaseTile(int PrevPlayerTile, int CurrentPlayerTile);
+
+	/*
+	Used by Inky to calculate chase tile. Inky takes Players current tile, Blinkies current tile, 
+	and doubles the distance.
+	*/
+	UFUNCTION(BlueprintCallable)
+	int GetInkyChaseTile(FVector BlinkyCurrentLocation, int PrevPlayerTile, int CurrentPlayerTile);
+
+	/*
+	Used  by Clyde to determine if within Clyde's radial distance of 8 tiles. Uses TileWidth to determine TileSize.
+	*/
+	UFUNCTION(BlueprintCallable)
+	bool IsClydeWithinEightTiles(FVector ClydeLocation, FVector PlayerLocation);
 
 private:
 	UWorld* ThisWorld;
@@ -96,4 +118,9 @@ private:
 
 	// Called by generator functon. Used to create physical representation of tile.
 	void CreateTile(float X, float Y, float Z, int TileN, int TileTypeInt);
+
+	/*
+	Used by Inky to calculating 
+	*/
+	int GetOffsetTwoTilesFromPlayer(int PrevPlayerTile, int CurrentPlayerTile);
 };

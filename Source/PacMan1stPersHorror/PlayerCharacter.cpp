@@ -3,7 +3,9 @@
 
 #include "PlayerCharacter.h"
 #include "TileGenerator.h"
+#include "GameFramework/Controller.h"
 #include "Engine/Engine.h"
+#include "Components/InputComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()

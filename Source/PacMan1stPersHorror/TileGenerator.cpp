@@ -157,7 +157,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
-		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Basic_Floor.M_Basic_Floor"));
+		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
 		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			FName(TEXT("Tile"), TileN));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
@@ -168,7 +168,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
-		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Basic_Floor.M_Basic_Floor"));
+		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
 		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			FName(TEXT("Tile"), TileN));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
@@ -283,4 +283,242 @@ int ATileGenerator::GetClosestTileToTarget(FVector CurrentLocation, FVector Targ
 	}
 
 	return ClosestTile;
+}
+
+int ATileGenerator::GetOffsetTwoTilesFromPlayer(int PrevPlayerTile, int CurrentPlayerTile)
+{
+	int TargetTile;
+
+	// Check if tiles are within bounds first
+	if ((PrevPlayerTile < 0) ||
+		(PrevPlayerTile > TileArr.Num()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: PrevPlayerTile OutOfBounds."), __FUNCTION__);
+		return -1;
+	}
+
+	// Check if tiles are within bounds first
+	if ((CurrentPlayerTile < 0) ||
+		(CurrentPlayerTile > TileArr.Num()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: CurrentPlayerTile OutOfBounds."), __FUNCTION__);
+		return -1;
+	}
+
+	// Up or same direction case
+	if ((CurrentPlayerTile == PrevPlayerTile) ||
+		(CurrentPlayerTile == PrevPlayerTile + TileCountX))
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			// Tile above current player tile
+			TargetTile = CurrentPlayerTile + TileCountX;
+			
+			// If next iteration is out of bounds
+			if (TargetTile + TileCountX > TileArr.Num())
+			{
+				// Return the target tile above.
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// Left direction case
+	else if (CurrentPlayerTile == PrevPlayerTile + 1)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			// Tile to left of target
+			TargetTile = CurrentPlayerTile + 1;
+
+			// If next iteration is on left most column edge of tile system
+			if ((TargetTile + 1) % TileCountX == (TileCountX - 1))
+			{
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// Down direction case
+	else if (CurrentPlayerTile == PrevPlayerTile - TileCountX)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			// Tile above current player tile
+			TargetTile = CurrentPlayerTile - TileCountX;
+
+			// If next iteration is out of bounds
+			if (TargetTile + TileCountX < 0)
+			{
+				// Return the target tile above.
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// Right direction case
+	else if (CurrentPlayerTile == PrevPlayerTile - 1)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			// Tile to left of target
+			TargetTile = CurrentPlayerTile -1;
+
+			// If next iteration is on left most column edge of tile system
+			if ((TargetTile - 1) % TileCountX == 0)
+			{
+				return TargetTile;
+			}
+		}
+	return TargetTile;
+	}
+
+	// No case, error
+	UE_LOG(LogTemp, Warning, TEXT("%s: No direction found."), __FUNCTION__);
+	return -1;
+}
+
+int ATileGenerator::GetPinkyChaseTile(int PrevPlayerTile, int CurrentPlayerTile)
+{
+	int TargetTile;
+
+	// Check if tiles are within bounds first
+	if ((PrevPlayerTile < 0) ||
+		(PrevPlayerTile > TileArr.Num()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: PrevPlayerTile OutOfBounds."), __FUNCTION__);
+		return -1;
+	}
+
+	// Check if tiles are within bounds first
+	if ((CurrentPlayerTile < 0) ||
+		(CurrentPlayerTile > TileArr.Num()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: CurrentPlayerTile OutOfBounds."), __FUNCTION__);
+		return -1;
+	}
+
+	// Up or same direction case
+	if ((CurrentPlayerTile == PrevPlayerTile) ||
+		(CurrentPlayerTile == PrevPlayerTile + TileCountX))
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			// Tile above current player tile
+			TargetTile = CurrentPlayerTile + TileCountX;
+
+			// If next iteration is out of bounds
+			if (TargetTile + TileCountX > TileArr.Num())
+			{
+				// Return the target tile above.
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// Left direction case
+	else if (CurrentPlayerTile == PrevPlayerTile + 1)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			// Tile to left of target
+			TargetTile = CurrentPlayerTile + 1;
+
+			// If next iteration is on left most column edge of tile system
+			if ((TargetTile + 1) % TileCountX == (TileCountX - 1))
+			{
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// Down direction case
+	else if (CurrentPlayerTile == PrevPlayerTile - TileCountX)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			// Tile above current player tile
+			TargetTile = CurrentPlayerTile - TileCountX;
+
+			// If next iteration is out of bounds
+			if (TargetTile - TileCountX < 0)
+			{
+				// Return the target tile above.
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// Right direction case
+	else if (CurrentPlayerTile == PrevPlayerTile - 1)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			// Tile to left of target
+			TargetTile = CurrentPlayerTile - 1;
+
+			// If next iteration is on left most column edge of tile system
+			if ((TargetTile - 1) % TileCountX == 0)
+			{
+				return TargetTile;
+			}
+		}
+		return TargetTile;
+	}
+
+	// No case, error
+	UE_LOG(LogTemp, Warning, TEXT("%s: No direction found."), __FUNCTION__);
+	return -1;
+}
+
+int ATileGenerator::GetInkyChaseTile(FVector BlinkyCurrentLocation, int PrevPlayerTile, int CurrentPlayerTile)
+{
+	FVector TargetLocation;
+	int     XTile, YTile;
+	int     PlayerOffsetTile = GetOffsetTwoTilesFromPlayer(PrevPlayerTile, CurrentPlayerTile);
+	FVector PlayerOffsetCoordinates = GetCoordinatesFromTile(PlayerOffsetTile);
+
+
+	// First calculate distance using vectors
+	TargetLocation = PlayerOffsetCoordinates + (PlayerOffsetCoordinates - BlinkyCurrentLocation);
+	
+	// Then, increment from PlayerOffset to Tile to make sure not going out of bounds
+	for (int x = PlayerOffsetCoordinates.X; x <= TargetLocation.X; x += (TileWidth / 2))
+	{
+		XTile = GetTileFromCoordinates(FVector(x, PlayerOffsetCoordinates.Y, 0));
+		TargetLocation.X = x;
+		if (((XTile - 1) % TileCountX == 0) || ((XTile + 1) % TileCountX == (TileCountX - 1)))
+		{
+			break;
+		}
+	}
+	for (int y = PlayerOffsetCoordinates.Y; y <= TargetLocation.Y; y += (TileHeight / 2))
+	{
+		YTile = GetTileFromCoordinates(FVector(TargetLocation.X, y, 0));
+		TargetLocation.Y = y;
+		if ((YTile + TileCountX > TileArr.Num()) || (YTile - TileCountX < 0))
+		{
+			break;
+		}
+	}
+	
+	return GetTileFromCoordinates(TargetLocation);
+}
+
+bool ATileGenerator::IsClydeWithinEightTiles(FVector ClydeLocation, FVector PlayerLocation)
+{
+	float DistanceBetweenClydeAndPlayer = FVector::Dist2D(ClydeLocation, PlayerLocation);
+
+	if (DistanceBetweenClydeAndPlayer < (8 * TileWidth))
+	{
+		return true;
+	}
+
+	return false;
 }
