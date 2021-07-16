@@ -42,5 +42,13 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int CurrentTile;
 
+	// Boolean for powerup
+	UPROPERTY(BlueprintReadWrite)
+	bool PlayerPowerup;
+
+	// Boolean to pause game on death
+	UPROPERTY(BlueprintReadWrite)
+	bool IsPlayerDead;
+
 
 };

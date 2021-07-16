@@ -12,7 +12,7 @@ ATileGenerator::ATileGenerator()
 	PrimaryActorTick.bCanEverTick = false;
 
 	// Set default values
-	TileCountX = 28, TileCountY = 29;
+	TileCountX = 28, TileCountY = 31;
 	TotalTiles = TileCountX * TileCountY;
 	TileWidth = TileHeight = 400;
 
@@ -31,6 +31,7 @@ ATileGenerator::ATileGenerator()
 	RootScene->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 		FName(TEXT("Dummy Parent"), 0));
 
+
 	// Call generator function
 	GenerateTilesForLevel();
 }
@@ -40,7 +41,8 @@ void ATileGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	ThisWorld = GetWorld();
+	SpawnPickups();
 }
 
 
@@ -58,38 +60,42 @@ void ATileGenerator::GenerateTilesForLevel()
 	int walls [] =
 	{
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-		2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2,
+		2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2,
+		2, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 2, 2, 3, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 2,
+		2, 4, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 2, 2, 3, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 4, 2,
+		2, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 2, 2, 3, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 2,
+		2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2,
+		2, 3, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 3, 2,
+		2, 3, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 3, 2,
+		2, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
 
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0,
 
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 2, 2, 2, 2,
-		2, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 2,
-		2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
+		2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2,
+		2, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 2,
+		2, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 2,
+		2, 4, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 4, 2,
+		2, 2, 2, 3, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 3, 2, 2, 2,
+		2, 2, 2, 3, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 3, 2, 2, 2,
+		2, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 1, 1, 3, 3, 3, 3, 3, 3, 2,
+		2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2,
+		2, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 2,
+		2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2,
 		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 	};
 
+	TileLevelLayout = TArray<int>(walls, TotalTiles);
+	
 	// Use 2D array to create tile system based off defined x, y, counts, and width heights
 	for (int CreateTilesY = 0; CreateTilesY < TileCountY; CreateTilesY++)
 	{
@@ -105,43 +111,18 @@ void ATileGenerator::GenerateTilesForLevel()
 
 void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float RelativeZ, int TileN, int TileTypeInt)
 {
-//	AScorePickup* Score;
 	Tile* ATile = new Tile();
 	auto Type = TileType(TileTypeInt);
 	FVector	 TileLocation = FVector(RelativeX, RelativeY, RelativeZ);
 	FVector PickupLocation = TileLocation;
-	PickupLocation.Z = RelativeZ + 150;
 	FRotator TileRotation = GetActorRotation();
 
 	
 	// Creating UStaticMeshComponent
 	ATile->MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName(TEXT("Tile"), TileN));
 	ATile->Type = Type;
-	if (Type == TileType::EmptyFloor)
-	{
-		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_400x400.Floor_400x400"));
-		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
-		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
-		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
-		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			FName(TEXT("Tile"), TileN));
-		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
-		ATile->MeshComponent->SetMaterial(0, Material_obj.Object);
-	}
-	else if (Type == TileType::ScorePickupFloor)
-	{
-		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_400x400.Floor_400x400"));
-		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
-		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
-		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
-		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			FName(TEXT("Tile"), TileN));
-		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
-		ATile->MeshComponent->SetMaterial(0, Material_obj.Object);
-		
-		//ScorePickupArr.Add((AScorePickup*)ThisWorld->SpawnActor(AScorePickup::StaticClass(), &PickupLocation, &TileRotation));
-	}
-	else if (Type == TileType::GlassWall)
+
+	if (Type == TileType::GlassWall)
 	{
 		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
@@ -165,7 +146,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 	}
 	else
 	{
-		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
+		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_400x400.Floor_400x400"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
@@ -177,6 +158,47 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 
 	// Adding to TArray
 	TileArr.Add(ATile);
+}
+
+void ATileGenerator::SpawnPickups()
+{
+	AScorePickup* Score;
+	FVector	 SpawnLocation;
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.ObjectFlags = RF_NoFlags;
+	float TileXOffset, TileYOffset, TileZOffset = 0;
+	int TilesCreated = 0;
+	FVector TileLocation = GetActorLocation();
+	FRotator TileRotation = GetActorRotation();
+
+
+	// Use 2D array to create tile system based off defined x, y, counts, and width heights
+	for (int CreateTilesY = 0; CreateTilesY < TileCountY; CreateTilesY++)
+	{
+		TileYOffset = CreateTilesY * TileHeight;
+		for (int CreateTilesX = 0; CreateTilesX < TileCountX; CreateTilesX++)
+		{
+			TileXOffset = CreateTilesX * TileWidth;
+			if (TileLevelLayout[TilesCreated] == TileType::ScorePickupFloor)
+			{
+
+				SpawnLocation = FVector();
+				SpawnLocation.X = TileLocation.X + ((1 + CreateTilesX) * (TileWidth / 2));
+				SpawnLocation.Y = TileLocation.Y + ((1 + CreateTilesY) * (TileHeight / 2));
+				SpawnLocation.Z = TileLocation.Z + 25;
+					
+				if (ThisWorld != nullptr)
+				{
+					Score = (AScorePickup*)(ThisWorld->SpawnActor(AScorePickup::StaticClass(), &SpawnLocation, &TileRotation, SpawnInfo));
+					ScorePickupArr.Add(Score);
+				}
+
+			}
+			TilesCreated++;
+		}
+	}
+
 }
 
 int ATileGenerator::GetTileFromCoordinates(FVector Location)
