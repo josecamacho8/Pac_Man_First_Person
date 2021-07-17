@@ -28,8 +28,7 @@ ATileGenerator::ATileGenerator()
 	// Used as root for all 
 	RootScene = CreateDefaultSubobject<USceneComponent>(TEXT("DummyRootScene"));
 	RootScene->SetRelativeLocationAndRotation(TileLocation, GetActorRotation());
-	RootScene->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-		FName(TEXT("Dummy Parent"), 0));
+	RootScene->SetupAttachment(RootComponent, FName(TEXT("Dummy Parent"), 0));
 
 
 	// Call generator function
@@ -128,8 +127,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Glass.M_Glass"));
-		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			FName(TEXT("Tile"), TileN));
+		ATile->MeshComponent->SetupAttachment(RootScene, FName(TEXT("Tile"), TileN));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetMaterial(0, Material_obj.Object);
 	}
@@ -139,8 +137,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
-		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			FName(TEXT("Tile"), TileN));
+		ATile->MeshComponent->SetupAttachment(RootScene, FName(TEXT("Tile"), TileN));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetMaterial(0, Material_obj.Object);
 	}
@@ -150,8 +147,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
-		ATile->MeshComponent->AttachToComponent(RootScene, FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			FName(TEXT("Tile"), TileN));
+		ATile->MeshComponent->SetupAttachment(RootScene, FName(TEXT("Tile"), TileN));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetMaterial(0, Material_obj.Object);
 	}
