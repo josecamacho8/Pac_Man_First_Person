@@ -30,10 +30,15 @@ public:
 	// Tile System Constraints
 	int TileCountX;
 	int TileCountY;
-	int TotalTiles;
+
+	UPROPERTY(BlueprintReadOnly)
 	int TileWidth;
+
+	UPROPERTY(BlueprintReadOnly)
 	int TileHeight;
 
+	UPROPERTY(BlueprintReadOnly)
+	int TotalTiles;
 	/*
 	Called by actors traversing tile system. 
 
@@ -84,10 +89,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsClydeWithinEightTiles(FVector ClydeLocation, FVector PlayerLocation);
 
+	// Used to store layout of levels
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int> TileLevelLayout;
+
 private:
 	UWorld* ThisWorld;
 
-	enum TileType {EmptyFloor, GlassWall, ExternalWall, ScorePickupFloor, TeleportWall};
+
+	enum TileType {EmptyFloor, GlassWall, ExternalWall, ScorePickupFloor, PowerupPickupFloor, TeleportWall};
 	class Tile {
 		public:
 			UStaticMeshComponent* MeshComponent;
@@ -115,6 +125,12 @@ private:
 	TileCounts/TileWidth/TileHeight.
 	*/
 	void GenerateTilesForLevel();
+
+
+	/*
+	Used after world spawned. Need to live in world to create actors.
+	*/
+	void SpawnPickups();
 
 	// Called by generator functon. Used to create physical representation of tile.
 	void CreateTile(float X, float Y, float Z, int TileN, int TileTypeInt);
