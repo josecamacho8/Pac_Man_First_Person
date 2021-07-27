@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ScorePickup.h"
 #include "TileGenerator.generated.h"
 
 UCLASS()
@@ -116,9 +115,6 @@ private:
 
 	// Object array for ATiles.
 	TArray<Tile*> TileArr;
-
-	// Object array for ScorePickups.
-	TArray<AScorePickup*> ScorePickupArr;
 
 	/*
 	Called at consturction of TileGenerator class. Fills TileArr based off

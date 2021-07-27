@@ -14,7 +14,7 @@ ATileGenerator::ATileGenerator()
 	// Set default values
 	TileCountX = 28, TileCountY = 31;
 	TotalTiles = TileCountX * TileCountY;
-	TileWidth = TileHeight = 400;
+	TileWidth = TileHeight = 300;
 
 	// Set x, y upper bounds
 	FVector	TileLocation = GetActorLocation();
@@ -41,7 +41,6 @@ void ATileGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	ThisWorld = GetWorld();
-	SpawnPickups();
 }
 
 
@@ -73,7 +72,7 @@ void ATileGenerator::GenerateTilesForLevel()
 		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
 
-		0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0,
+		2, 2, 2, 2, 2, 2, 3, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 3, 2, 2, 2, 2, 2, 2,
 
 		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
 		2, 2, 2, 2, 2, 2, 3, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 3, 2, 2, 2, 2, 2, 2,
@@ -123,7 +122,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 
 	if (Type == TileType::GlassWall)
 	{
-		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
+		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_300x300x300.Wall_300x300x300"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Glass.M_Glass"));
@@ -133,7 +132,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 	}
 	else if (Type == TileType::ExternalWall)
 	{
-		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_400x400x300.Wall_400x400x300"));
+		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Wall_300x300x300.Wall_300x300x300"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
@@ -143,7 +142,7 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 	}
 	else
 	{
-		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_400x400.Floor_400x400"));
+		ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMesh_obj(TEXT("/Game/StarterContent/Architecture/Floor_300x300.Floor_300x300"));
 		ATile->MeshComponent->SetStaticMesh(StaticMesh_obj.Object);
 		ATile->MeshComponent->SetRelativeLocationAndRotation(TileLocation, TileRotation);
 		ConstructorHelpers::FObjectFinder<UMaterial> Material_obj(TEXT("/Game/StarterContent/Materials/M_Tech_Panel.M_Tech_Panel"));
@@ -154,47 +153,6 @@ void ATileGenerator::CreateTile(float RelativeX, float RelativeY, float Relative
 
 	// Adding to TArray
 	TileArr.Add(ATile);
-}
-
-void ATileGenerator::SpawnPickups()
-{
-	AScorePickup* Score;
-	FVector	 SpawnLocation;
-
-	FActorSpawnParameters SpawnInfo;
-	SpawnInfo.ObjectFlags = RF_NoFlags;
-	float TileXOffset, TileYOffset, TileZOffset = 0;
-	int TilesCreated = 0;
-	FVector TileLocation = GetActorLocation();
-	FRotator TileRotation = GetActorRotation();
-
-
-	// Use 2D array to create tile system based off defined x, y, counts, and width heights
-	for (int CreateTilesY = 0; CreateTilesY < TileCountY; CreateTilesY++)
-	{
-		TileYOffset = CreateTilesY * TileHeight;
-		for (int CreateTilesX = 0; CreateTilesX < TileCountX; CreateTilesX++)
-		{
-			TileXOffset = CreateTilesX * TileWidth;
-			if (TileLevelLayout[TilesCreated] == TileType::ScorePickupFloor)
-			{
-
-				SpawnLocation = FVector();
-				SpawnLocation.X = TileLocation.X + ((1 + CreateTilesX) * (TileWidth / 2));
-				SpawnLocation.Y = TileLocation.Y + ((1 + CreateTilesY) * (TileHeight / 2));
-				SpawnLocation.Z = TileLocation.Z + 25;
-					
-				if (ThisWorld != nullptr)
-				{
-					Score = (AScorePickup*)(ThisWorld->SpawnActor(AScorePickup::StaticClass(), &SpawnLocation, &TileRotation, SpawnInfo));
-					ScorePickupArr.Add(Score);
-				}
-
-			}
-			TilesCreated++;
-		}
-	}
-
 }
 
 int ATileGenerator::GetTileFromCoordinates(FVector Location)
